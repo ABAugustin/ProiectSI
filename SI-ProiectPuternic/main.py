@@ -1,4 +1,4 @@
-import numpy as np
+
 
 
 #Data
@@ -35,7 +35,7 @@ ex_cypher_key=[
     [0x15,0xd2,0x15,0xcf],
     [0x16,0xa6,0x88,0x3c]
 ]
-rij_matrix=[
+raj_matrix=[
     [0x02,0x03,0x01,0x01],
     [0x01,0x02,0x03,0x01],
     [0x01,0x01,0x02,0x03],
@@ -67,12 +67,33 @@ def shift_rows(matrix):
         shift = i
         matrix[i] = row[shift:] + row[:shift]
 
-# TODO
-# def mix_columns(matrix):
-#
-#     for i in range(4):
-#         for j in range(4):
-#             matrix[:][j]=
+def gf_mul(a,b):
+    res=0x00
+    while a:
+        if a & 1:
+            res^=b
+        b <<= 1
+        if b & 0x100:
+            b ^= 0x11b
+        a >>= 1
+    return res
+
+#TODO
+def mix_columns(matrix):
+
+    new_matrix=matrix
+    for c in range(4):
+        for i in range(4):
+            sum=0
+            for j in range(4):
+                #print(hex(raj_matrix[i][j]))
+                #print(hex(matrix[j][c]))
+
+                sum^=gf_mul(raj_matrix[i][j],matrix[j][c])
+            new_matrix[i][c]=sum
+
+    return new_matrix
+
 
 # TODO
 # def cipher_key_update(cypher):
@@ -88,7 +109,9 @@ if __name__ == '__main__':
     sub_bytes(ex_state)
     # afisare_matrice(ex_state)
     shift_rows(ex_state)
+
     afisare_matrice(ex_state)
+    print("----")
+    afisare_matrice(mix_columns(ex_state))
 
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
