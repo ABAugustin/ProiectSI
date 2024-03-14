@@ -1,6 +1,3 @@
-
-
-
 #Data
 
 s_box = [
@@ -22,45 +19,52 @@ s_box = [
     [0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16]
 ]
 
-ex_state=[
-    [0x32, 0x88, 0x31,0xe0],
-    [0x43,0x5a,0x31,0x37],
-    [0xf6,0x30,0x98,0x07],
-    [0xa8,0x8d,0xa2,0x34]
+ex_state = [
+    [0x32, 0x88, 0x31, 0xe0],
+    [0x43, 0x5a, 0x31, 0x37],
+    [0xf6, 0x30, 0x98, 0x07],
+    [0xa8, 0x8d, 0xa2, 0x34]
 ]
 
-ex_cypher_key=[
-    [0x2b,0x28,0xab,0x09],
-    [0x7e,0xae,0xf7,0xcf],
-    [0x15,0xd2,0x15,0xcf],
-    [0x16,0xa6,0x88,0x3c]
+ex_cypher_key = [
+    [0x2b, 0x28, 0xab, 0x09],
+    [0x7e, 0xae, 0xf7, 0xcf],
+    [0x15, 0xd2, 0x15, 0x4f],
+    [0x16, 0xa6, 0x88, 0x3c]
 ]
-raj_matrix=[
-    [0x02,0x03,0x01,0x01],
-    [0x01,0x02,0x03,0x01],
-    [0x01,0x01,0x02,0x03],
-    [0x03,0x01,0x01,0x02]
+
+raj_matrix = [
+    [0x02, 0x03, 0x01, 0x01],
+    [0x01, 0x02, 0x03, 0x01],
+    [0x01, 0x01, 0x02, 0x03],
+    [0x03, 0x01, 0x01, 0x02]
+]
+
+Rcon = [
+    [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 ]
 
 def add_round_key(state,cypher):
     for i in range(4):
         for j in range(4):
-            state[i][j]^=cypher[i][j]
+            state[i][j] ^= cypher[i][j]
 
 
 def afisare_matrice(matrix):
     for i in range(4):
         for j in range(4):
-            print(format(matrix[i][j],'#04x'), end=' ')
+            print(format(matrix[i][j], '#04x'), end=' ')
         print('')
 
 def sub_bytes(matrix):
-   # new_matrix = [[0] * 4 for i in range(4)]
     for i in range(4):
         for j in range(4):
             a = (matrix[i][j] & 0xf0) >> 4
             b = matrix[i][j] & 0x0f
-            matrix[i][j]=s_box[a][b]
+            matrix[i][j] = s_box[a][b]
 
 def shift_rows(matrix):
     for i, row in enumerate(matrix):
@@ -71,27 +75,21 @@ def gf_mul(a,b):
     res=0x00
     while a:
         if a & 1:
-            res^=b
+            res ^= b
         b <<= 1
         if b & 0x100:
             b ^= 0x11b
         a >>= 1
     return res
 
-#TODO
 def mix_columns(matrix):
-
-    new_matrix=matrix
+    new_matrix = [[0] * 4 for i in range(4)]
     for c in range(4):
         for i in range(4):
-            sum=0
+            sum = 0
             for j in range(4):
-                #print(hex(raj_matrix[i][j]))
-                #print(hex(matrix[j][c]))
-
-                sum^=gf_mul(raj_matrix[i][j],matrix[j][c])
-            new_matrix[i][c]=sum
-
+                sum ^= gf_mul(raj_matrix[i][j], matrix[j][c])
+            new_matrix[i][c] = sum
     return new_matrix
 
 
@@ -106,10 +104,12 @@ def mix_columns(matrix):
 if __name__ == '__main__':
 
     add_round_key(ex_state, ex_cypher_key)
+    afisare_matrice(ex_state)
     sub_bytes(ex_state)
-    # afisare_matrice(ex_state)
+    print("----")
+    afisare_matrice(ex_state)
     shift_rows(ex_state)
-
+    print("----")
     afisare_matrice(ex_state)
     print("----")
     afisare_matrice(mix_columns(ex_state))
