@@ -1,3 +1,4 @@
+import numpy as np
 #Data
 
 s_box = [
@@ -47,6 +48,15 @@ Rcon = [
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 ]
 
+def rotate_last_column(matrix):
+
+    last_column = [row[3] for row in matrix]
+
+    for i in range(3):
+        last_column.insert(0, last_column.pop())
+
+    return np.array(last_column)
+
 def add_round_key(state,cypher):
     for i in range(4):
         for j in range(4):
@@ -65,6 +75,13 @@ def sub_bytes(matrix):
             a = (matrix[i][j] & 0xf0) >> 4
             b = matrix[i][j] & 0x0f
             matrix[i][j] = s_box[a][b]
+
+def sub_bytes_array(array):
+
+    for i in range(4):
+        a = (array[i] & 0xf0) >> 4
+        b = array[i] & 0x0f
+        array[i] = s_box[a][b]
 
 def shift_rows(matrix):
     for i, row in enumerate(matrix):
@@ -92,26 +109,94 @@ def mix_columns(matrix):
             new_matrix[i][c] = sum
     return new_matrix
 
+def get_column_index(i,matrix):
+    column = [row[i] for row in matrix]
+    return np.array(column)
+def print_array(array):
+    for i in range(4):
+        print(format(array[i], '#04x'), end=' ')
+    print('')
 
-# TODO
-# def cipher_key_update(cypher):
-#     for i, row in enumerate(matrix):
-#         shift = i
-#         matrix[i] = row[shift:] + row[:shift]
 
+def xor_sum2(array1,array2):
+    new_array=[0,0,0,0]
+    for i in range(4):
+        new_array[i]=array1[i]^array2[i]
+    return np.array(new_array)
+
+
+def xor_sum3(array1, array2, array3):
+    new_array = [0,0,0,0]
+    for i in range(4):
+        new_array[i] = array1[i] ^ array2[i] ^ array3[i]
+    return np.array(new_array)
+def generate_key(matrix,rcon_index):
+    new_key=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    for i in range(4):
+        if i == 0:
+            # se ia ultima coloana si se invarte
+            rotated_column = rotate_last_column(matrix)
+            # se transforma cu sub_bytes
+            sub_bytes_array(rotated_column)
+            # se calculeaza xor cu prima coloana, cea invartita si rcon dupa index
+            first_column_result=xor_sum3(rotated_column,get_column_index(i,matrix),get_column_index(rcon_index,Rcon))
+
+            # se atribuite pe prima coloana din noua matrice
+            for j in range(len(matrix)):
+                new_key[j][0] = first_column_result[j]
+
+        else:
+            anterior_column = np.array([row[i-1] for row in new_key])
+            new_column = xor_sum2(anterior_column,get_column_index(i,matrix))
+            # print("col")
+            # print_array(new_column)
+            for j in range(len(matrix)):
+                new_key[j][i] = new_column[j]
+    return new_key
+
+def encryption_matrix(matrix,cypher):
+    add_round_key(matrix,cypher)
+    for i in range(9):
+        sub_bytes(matrix)
+        shift_rows(matrix)
+        mix_columns(matrix)
+        new_cypher_matrix=generate_key(cypher,i)
+        add_round_key(matrix,new_cypher_matrix)
+        print("Pasul",i)
+        afisare_matrice(matrix)
+    print("Pasul", 10)
+    new_cypher_matrix = generate_key(cypher, 9)
+    sub_bytes(matrix)
+    shift_rows(matrix)
+    add_round_key(matrix,new_cypher_matrix)
+
+
+    return matrix
 
 
 if __name__ == '__main__':
 
-    add_round_key(ex_state, ex_cypher_key)
-    afisare_matrice(ex_state)
-    sub_bytes(ex_state)
-    print("----")
-    afisare_matrice(ex_state)
-    shift_rows(ex_state)
-    print("----")
-    afisare_matrice(ex_state)
-    print("----")
-    afisare_matrice(mix_columns(ex_state))
+    # add_round_key(ex_state, ex_cypher_key)
+    # afisare_matrice(ex_state)
+    # sub_bytes(ex_state)
+    # print("----")
+    # afisare_matrice(ex_state)
+    # shift_rows(ex_state)
+    # print("----")
+    # afisare_matrice(ex_state)
+    # print("----")
+    # afisare_matrice(mix_columns(ex_state))
+    # print("----")
+    # afisare_matrice((ex_cypher_key))
+    # print("----")
+    # # print_array(rotate_last_column(ex_cypher_key))
+    #
+    # afisare_matrice(generate_key(ex_cypher_key,0))
+    # print(hex(0xe9^0xd0))
+
+    afisare_matrice(encryption_matrix(ex_state,ex_cypher_key))
+
+
+
 
 
