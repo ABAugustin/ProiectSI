@@ -233,17 +233,11 @@ def decryption_matrix(matrix, cypher):
         new_cypher_matrix = generate_key(new_cypher_matrix, i)
 
     add_round_key(matrix,new_cypher_matrix)
-    print("Pasul 1")
-    afisare_matrice(new_cypher_matrix)
 
     for i in range(9,-1,-1):
-        print(i)
-
         if i==0:
-            print("i e zero")
             matrix=inv_shift_rows(matrix)
             matrix=inv_sub_bytes(matrix)
-            afisare_matrice(cypher)
             add_round_key(matrix,cypher)
         else:
             matrix=inv_shift_rows(matrix)
@@ -251,8 +245,6 @@ def decryption_matrix(matrix, cypher):
             new_cypher_matrix = generate_key(cypher, 0)
             for j in range(1, i):
                 new_cypher_matrix = generate_key(new_cypher_matrix, j)
-            print("Matrice cheie")
-            afisare_matrice(new_cypher_matrix)
             add_round_key(matrix,new_cypher_matrix)
             matrix=inv_mix_columns(matrix)
     return matrix
