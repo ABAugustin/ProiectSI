@@ -204,11 +204,9 @@ def inv_sub_bytes(matrix):
     return matrix
 
 def inv_shift_rows(matrix):
-    for i, row in enumerate(matrix):
-        shift = len(matrix) - i
-        matrix[i] = row[-shift:] + row[:-shift]
+    for row in range(1, 4):
+        matrix[row] = matrix[row][-row:] + matrix[row][:-row]
     return matrix
-
 def inv_mix_columns(matrix):
     inv_mix_matrix = [
         [0x0e, 0x0b, 0x0d, 0x09],
@@ -229,8 +227,10 @@ def inv_mix_columns(matrix):
 
 def decryption_matrix(matrix, cypher):
     new_cypher_matrix = generate_key(cypher, 0)
+
     for i in range(10, 0, -1):
         print("----Pasul", 10 - i + 1)
+        
 
         if i == 10:
             matrix = inv_shift_rows(matrix)
@@ -267,6 +267,17 @@ if __name__ == '__main__':
     print("\n\n***************Decriptare***************")
     decrypted_matrix = decryption_matrix(encrypted_matrix, ex_cypher_key)
     afisare_matrice(decrypted_matrix)
+
+    # matrix=[[0x47,0x40,0xA3,0x4c],
+    #         [0x37,0xD4,0x70,0x9f],
+    #         [0x94,0xe4,0x3a,0x42],
+    #         [0xed,0xa5,0xa6,0xBc]]
+
+    #afisare_matrice(inv_sub_bytes(matrix))
+    #afisare_matrice(inv_shift_rows(matrix))
+    #afisare_matrice(inv_mix_columns(matrix))
+
+
 
 
 
