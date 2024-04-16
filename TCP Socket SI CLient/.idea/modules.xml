@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/SI-ProiectPuternic.iml" filepath="$PROJECT_DIR$/.idea/SI-ProiectPuternic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/TCP Socket SI CLient.iml" filepath="$PROJECT_DIR$/.idea/TCP Socket SI CLient.iml" />
     </modules>
   </component>
 </project>

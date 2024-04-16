@@ -97,7 +97,6 @@ def sub_bytes(matrix):
             matrix[i][j] = s_box[a][b]
 
 def sub_bytes_array(array):
-
     for i in range(4):
         a = (array[i] & 0xf0) >> 4
         b = array[i] & 0x0f
@@ -176,19 +175,19 @@ def encryption_matrix(matrix, cypher):
     new_cypher_matrix = [[0] * 4 for i in range(4)]
     for i in range(10):
         if i == 0:
-            print("----Pasul", i)
+            #print("----Pasul", i)
             new_cypher_matrix = generate_key(cypher, i)
             add_round_key(matrix, cypher)
-            afisare_matrice(matrix)
+            #afisare_matrice(matrix)
         else:
-            print("----Pasul", i)
+           # print("----Pasul", i)
             sub_bytes(matrix)
             shift_rows(matrix)
             matrix = mix_columns(matrix)
             add_round_key(matrix, new_cypher_matrix)
             new_cypher_matrix = generate_key(new_cypher_matrix, i)
-            afisare_matrice(matrix)
-    print("-----Pasul", 11)
+            #afisare_matrice(matrix)
+    #print("-----Pasul", 11)
     sub_bytes(matrix)
     shift_rows(matrix)
     add_round_key(matrix, new_cypher_matrix)
@@ -201,15 +200,13 @@ def inv_sub_bytes(matrix):
             a = (matrix[i][j] & 0xf0) >> 4
             b = matrix[i][j] & 0x0f
             matrix[i][j] = inv_s_box[a][b]
-
+    return matrix
 
 def inv_shift_rows(matrix):
-    for i, row in enumerate(matrix):
-        shift = len(matrix) - i
-        matrix[i] = row[-shift:] + row[:-shift]
-
+    for row in range(1, 4):
+        matrix[row] = matrix[row][-row:] + matrix[row][:-row]
+    return matrix
 def inv_mix_columns(matrix):
-    # Define the inverse mix columns matrix
     inv_mix_matrix = [
         [0x0e, 0x0b, 0x0d, 0x09],
         [0x09, 0x0e, 0x0b, 0x0d],
@@ -218,8 +215,6 @@ def inv_mix_columns(matrix):
     ]
 
     new_matrix = [[0] * 4 for _ in range(4)]
-
-    # Perform inverse mix columns operation
     for c in range(4):
         for i in range(4):
             sum = 0
@@ -229,30 +224,34 @@ def inv_mix_columns(matrix):
 
     return new_matrix
 
+def decryption_matrix(matrix, cypher):
+
+
+    new_cypher_matrix = generate_key(cypher, 0)
+    for i in range(1,10):
+        new_cypher_matrix = generate_key(new_cypher_matrix, i)
+
+    add_round_key(matrix,new_cypher_matrix)
+
+    for i in range(9,-1,-1):
+        if i==0:
+            matrix=inv_shift_rows(matrix)
+            matrix=inv_sub_bytes(matrix)
+            add_round_key(matrix,cypher)
+        else:
+            matrix=inv_shift_rows(matrix)
+            matrix=inv_sub_bytes(matrix)
+            new_cypher_matrix = generate_key(cypher, 0)
+            for j in range(1, i):
+                new_cypher_matrix = generate_key(new_cypher_matrix, j)
+            add_round_key(matrix,new_cypher_matrix)
+            matrix=inv_mix_columns(matrix)
+    return matrix
 
 
 
-if __name__ == '__main__':
 
-    # add_round_key(ex_state, ex_cypher_key)
-    # afisare_matrice(ex_state)
-    # sub_bytes(ex_state)
-    # print("----")
-    # afisare_matrice(ex_state)
-    # shift_rows(ex_state)
-    # print("----")
-    # afisare_matrice(ex_state)
-    # print("----")
-    # afisare_matrice(mix_columns(ex_state))
-    # print("----")
-    # afisare_matrice((ex_cypher_key))
-    # print("----")
-    # # print_array(rotate_last_column(ex_cypher_key))
-    #
-    # afisare_matrice(generate_key(ex_cypher_key,0))
-    # print(hex(0xe9^0xd0))
 
-    afisare_matrice(encryption_matrix(ex_state, ex_cypher_key))
 
 
 
