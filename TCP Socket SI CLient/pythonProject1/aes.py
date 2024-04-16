@@ -250,6 +250,15 @@ def decryption_matrix(matrix, cypher):
 
 
 
+if __name__ == '__main__':
+    print("***************Criptare***************")
+    encrypted_matrix = encryption_matrix(ex_state, ex_cypher_key)
+    afisare_matrice(encrypted_matrix)
+
+    print("\n\n***************Decriptare***************")
+    decrypted_matrix = decryption_matrix(encrypted_matrix, ex_cypher_key)
+    afisare_matrice(decrypted_matrix)
+
 
 
 
