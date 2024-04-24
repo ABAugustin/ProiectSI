@@ -38,6 +38,7 @@ def transform_chunk_into_matrix(chunk):
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     server.bind((host, port))
     server.listen(5)
 
@@ -78,11 +79,13 @@ def binding_client():
     return client
 
 def recv_file_chunks(server):
-
-    index = 0
+    data_len = int(server.recv(1024).decode('utf-32'))
     final_text = ""
+    text = ""
     chunk = server.recv(128)
-    with open("abel_transferat.jpg", "ab") as file:
+    with open("abel_transferat.txt", "wb") as file:
+    #with open("poza_transferat.jpg", "wb") as file:
+
         while chunk:
 
             #print(chunk.decode())
@@ -93,16 +96,20 @@ def recv_file_chunks(server):
             chunk = matrix_transpouse(chunk)
 
             flat = ""
+
             for row in chunk:
                 for num in row:
                     flat += chr(num)
-            final_text += flat
+            final_text = flat
 
             #print(final_text)
             if client.gettimeout() != 0:
 
                 chunk = server.recv(128)
-                file.write(final_text.encode('utf-32'))
+                #file.write(final_text[:data_len])
+                text += final_text
+                #final_text = ""
+        file.write((text[:data_len]).encode('utf-16'))
 
 if __name__ == '__main__':
     server = start_server()

@@ -23,6 +23,7 @@ def transform_chunk_into_matrix(chunk):
 
 def client_start():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     host = "localhost"
     port = 8080
     e = generate_e(p, q)
@@ -65,8 +66,10 @@ def to_matrix(chunk):
 def fragment_files_and_encrypt_and_send(path, server):
     fileR = open(path, "rb")
     full_file = fileR.read()
+    #full_file = full_file.replace(b'\r', b'')
     rest_rounds = len(full_file) % 16
     rounds = int(len(full_file) / 16)
+    server.send(str(len(full_file)).encode('utf-32'))
 
     for i in range(rounds):
 
@@ -86,10 +89,7 @@ def fragment_files_and_encrypt_and_send(path, server):
 
     data_left = full_file[rounds*16:]
 
-    padding_bytes_needed = 16 - rest_rounds
-
-    print("data left")
-    print(padding_bytes_needed)
+    padding_bytes_needed = 16 - len(data_left)
 
     if padding_bytes_needed != 16:
 
@@ -113,7 +113,10 @@ def fragment_files_and_encrypt_and_send(path, server):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    path = "abel.jpg"
+    #path = "abel.jpg"
+    path = "abc.txt"
+    #path = "bluebrick.png"
+    #path = "poza.jpg"
     serv, e = client_start()
     cypher_received = recv_cif(serv, e)
     fragment_files_and_encrypt_and_send(path,serv)
