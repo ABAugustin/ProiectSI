@@ -1,3 +1,4 @@
+import base64
 import binascii
 import math
 import ssl
@@ -31,7 +32,7 @@ def transform_chunk_into_matrix(chunk):
     for i in range(dim):
         for j in range(dim):
             index = i * dim + j
-            matr[i][j] = ord(str(chunk[index]))
+            matr[i][j] = chunk[index]
 
     return matr
 
@@ -79,37 +80,50 @@ def binding_client():
     return client
 
 def recv_file_chunks(server):
-    data_len = int(server.recv(1024).decode('utf-32'))
-    final_text = ""
-    text = ""
-    chunk = server.recv(128)
-    with open("abel_transferat.txt", "wb") as file:
+    data_len = int(server.recv(1024).decode('utf-8'))
+    final_text = []
+    text = b''
+    chunk = server.recv(80)
+    with open("abel_transferat.jpg", "wb") as file:
     #with open("poza_transferat.jpg", "wb") as file:
-
+        print(len(chunk))
         while chunk:
+            print(len(chunk))
+            old_chunk_decoded = chunk.decode('utf-8')
+            chunk_decoded = ''.join(caracter for caracter in old_chunk_decoded if caracter != 'a')
+            print(old_chunk_decoded)
+            print(chunk_decoded)
+            #print(type(chunk.decode('utf-8')))
+            numbers_array = eval(chunk_decoded)
 
-            #print(chunk.decode())
-            chunk = transform_chunk_into_matrix(chunk.decode('utf-32'))
+            chunk = transform_chunk_into_matrix(numbers_array)
 
             chunk = decryption_matrix(chunk, cypher_ex)
 
             chunk = matrix_transpouse(chunk)
 
-            flat = ""
-
+            flat = []
             for row in chunk:
                 for num in row:
-                    flat += chr(num)
-            final_text = flat
+                    flat.append(num)
+
+            print("flat dupa trasnfer")
+            print(flat)
+
+
 
             #print(final_text)
             if client.gettimeout() != 0:
 
-                chunk = server.recv(128)
-                #file.write(final_text[:data_len])
-                text += final_text
-                #final_text = ""
-        file.write((text[:data_len]).encode('utf-16'))
+                chunk = server.recv(80)
+                sir_bytes = bytes(flat)
+                print("sirul nou")
+                print(sir_bytes)
+                print(base64.b64decode(sir_bytes))
+                flat.clear()
+                text += base64.b64decode(sir_bytes)
+        file.write((text[:data_len]))
+
 
 if __name__ == '__main__':
     server = start_server()
